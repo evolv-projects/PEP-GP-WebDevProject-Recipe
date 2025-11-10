@@ -14,10 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
- // NOTE: This file is part of the backend implementation. No changes are required.
-
-
 /**
  * The RecipeController class provides RESTful endpoints for managing recipes.
  * It interacts with the RecipeService to fetch, create, update, and delete recipes.
@@ -31,9 +27,8 @@ public class RecipeController {
 
     /**
      * Constructor that initializes the RecipeController with the provided RecipeService.
-     * 
-	 * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
+     *
+     * @param recipeService The service that handles the business logic for managing recipes.
      */
     public RecipeController(RecipeService recipeService, AuthenticationService authService) {
         this.recipeService = recipeService;
@@ -42,30 +37,27 @@ public class RecipeController {
 
     /**
      * Handler for fetching all recipes. Supports pagination, sorting, and filtering by recipe name or ingredient.
-     * 
-     * Responds with a 200 OK status and the list of recipes, or 404 Not Found with a result of "No recipes found".
      *
-     * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
+     * Responds with a 200 OK status and the list of recipes, or 404 Not Found with a result of "No recipes found".
      */
     public Handler fetchAllRecipes = ctx -> {
         String term = getParamAsClassOrElse(ctx, "term", String.class, null);
 
-		if (ctx.queryParam("page") != null) {
+        if (ctx.queryParam("page") != null) {
 
-			int page = getParamAsClassOrElse(ctx, "page", Integer.class, 1);
-			int pageSize = getParamAsClassOrElse(ctx, "pageSize", Integer.class, 10);
-			String sortBy = getParamAsClassOrElse(ctx, "sortBy", String.class, "id");
-			String sortDirection = getParamAsClassOrElse(ctx, "sortDirection", String.class, "asc");
+            int page = getParamAsClassOrElse(ctx, "page", Integer.class, 1);
+            int pageSize = getParamAsClassOrElse(ctx, "pageSize", Integer.class, 10);
+            String sortBy = getParamAsClassOrElse(ctx, "sortBy", String.class, "id");
+            String sortDirection = getParamAsClassOrElse(ctx, "sortDirection", String.class, "asc");
 
-			Page<Recipe> recipePage = recipeService.searchRecipes(term, page, pageSize, sortBy, sortDirection);
+            Page<Recipe> recipePage = recipeService.searchRecipes(term, page, pageSize, sortBy, sortDirection);
 
-            
-			ctx.json(recipePage);
 
-		} else {
+            ctx.json(recipePage);
 
-			String ingredient = ctx.queryParam("ingredient");
+        } else {
+
+            String ingredient = ctx.queryParam("ingredient");
             String recipeName = ctx.queryParam("name");
 
             List<Recipe> recipes = new ArrayList<>();
@@ -83,18 +75,15 @@ public class RecipeController {
                 ctx.status(200);
                 ctx.json(recipes);
             }
-		}
+        }
     };
 
     /**
      * Handler for fetching a recipe by its ID.
-     * 
+     *
      * If successful, responds with a 200 status code and the recipe as the response body.
-     * 
+     *
      * If unsuccessful, responds with a 404 status code and a result of "Recipe not found".
-     * 
-     * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
      */
     public Handler fetchRecipeById = ctx -> {
         int id = Integer.parseInt(ctx.pathParam("id"));
@@ -108,50 +97,44 @@ public class RecipeController {
     };
 
     /**
-     * Handler for creating a new recipe. Requires authentication via an authorization token. 
-     * 
+     * Handler for creating a new recipe. Requires authentication via an authorization token.
+     *
      * If successful, responds with a 201 Created status.
-     * If unauthorized, responds with a 401 Unauthorized status.	 
-     * 
-     * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
+     * If unauthorized, responds with a 401 Unauthorized status.
      */
     public Handler createRecipe = ctx -> {
         Chef chef = authService.getChefFromSessionToken(ctx.header("Authorization").split(" ")[1]);
         if (chef == null) {
-			ctx.status(401);
-		} else {
+            ctx.status(401);
+        } else {
 
-			Recipe recipe = ctx.bodyAsClass(Recipe.class);
+            Recipe recipe = ctx.bodyAsClass(Recipe.class);
 
-			recipe.setId(0);
-			
-			recipe.setAuthor(chef);
-			recipeService.saveRecipe(recipe);
+            recipe.setId(0);
 
-			ctx.status(201);
+            recipe.setAuthor(chef);
+            recipeService.saveRecipe(recipe);
 
-		}
+            ctx.status(201);
+
+        }
     };
 
     /**
      * Handler for deleting a recipe by its ID.
-     * 
+     *
      * If successful, responds with a 200 status and result of "Recipe deleted successfully."
-     * 
+     *
      * Otherwise, responds with a 404 status and a result of "Recipe not found."
-     * 
-     * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
      */
     public Handler deleteRecipe = ctx -> {
         try {
             // Parse the recipe ID from the path parameter
             int id = Integer.parseInt(ctx.pathParam("id"));
-            
+
             // Attempt to delete the recipe
             boolean deleted = recipeService.deleteRecipe(id);
-    
+
             // Handle the result of the deletion
             if (deleted) {
                 ctx.status(200).result("Recipe deleted successfully.");
@@ -166,39 +149,39 @@ public class RecipeController {
             ctx.status(500).result("An error occurred while deleting the recipe.");
         }
     };
-    
+
     /**
      * Handler for updating a recipe by its ID.
-     * 
+     *
      * If successful, responds with a 200 status code and the updated recipe as the response body.
-     * 
+     *
      * If unsuccessfuly, responds with a 404 status code and a result of "Recipe not found."
-     * 	 
-     * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
      */
     public Handler updateRecipe = ctx -> {
         int id = Integer.parseInt(ctx.pathParam("id"));
         Recipe recipe = ctx.bodyAsClass(Recipe.class);
-    
+
         Optional<Recipe> existingRecipe = recipeService.findRecipe(id);
         if (!existingRecipe.isPresent()) {
             ctx.status(404).result("Recipe not found.");
             return;
         }
-    
+
         recipe.setId(id);
         recipeService.saveRecipe(recipe);
         ctx.status(200).json(recipe);
     };
-    
+
     /**
      * A helper method to retrieve a query parameter from the context as a specific class type, or return a default value if the query parameter is not present.
-    /**
-     * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required by candidates.
+     *
+     * @param <T> The type of the query parameter to be returned.
+     * @param ctx The context of the request.
+     * @param queryParam The query parameter name.
+     * @param clazz The class type of the query parameter.
+     * @param defaultValue The default value to return if the query parameter is not found.
+     * @return The value of the query parameter converted to the specified class type, or the default value.
      */
-
     private <T> T getParamAsClassOrElse(Context ctx, String queryParam, Class<T> clazz, T defaultValue) {
         String paramValue = ctx.queryParam(queryParam);
         if (paramValue != null) {
@@ -216,8 +199,7 @@ public class RecipeController {
     /**
      * Configure the routes for recipe operations.
      *
-	 * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
+     * @param app the Javalin application
      */
     public void configureRoutes(Javalin app) {
         app.get("/recipes", fetchAllRecipes);
