@@ -13,10 +13,6 @@ import com.revature.util.ConnectionUtil;
 import com.revature.util.Page;
 import com.revature.util.PageOptions;
 
-
-// NOTE: This file is part of the backend implementation. No changes are required.
-
-
 /**
  * Data Access Object (DAO) for performing CRUD operations on Ingredient
  * entities. This class provides methods to create, read, update, and delete
@@ -24,26 +20,26 @@ import com.revature.util.PageOptions;
  */
 public class IngredientDAO {
 
-   /** A utility class used for establishing connections to the database. */
-   @SuppressWarnings("unused")
-   private ConnectionUtil connectionUtil;
+    /**
+     * A utility class used for establishing connections to the database.
+     */
+    private ConnectionUtil connectionUtil;
 
-   /**
-    * Constructs an IngredientDAO with the specified ConnectionUtil for database connectivity.
-    * 
-	 * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
-    */
-   public IngredientDAO(ConnectionUtil connectionUtil) {
-       this.connectionUtil = connectionUtil;
-   }
-
+    /**
+     * Constructs an IngredientDAO with the specified ConnectionUtil for database
+     * connectivity.
+     *
+     * @param connectionUtil the utility used to connect to the database
+     */
+    public IngredientDAO(ConnectionUtil connectionUtil) {
+        this.connectionUtil = connectionUtil;
+    }
 
     /**
      * Retrieves an Ingredient record by its unique identifier.
      *
-	 * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
+     * @param id the unique identifier of the Ingredient to retrieve.
+     * @return the Ingredient object with the specified id.
      */
     public Ingredient getIngredientById(int id) {
         String sql = "SELECT * FROM INGREDIENT WHERE ID = ?";
@@ -62,8 +58,8 @@ public class IngredientDAO {
     /**
      * Creates a new Ingredient record in the database.
      *
-	 * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
+     * @param ingredient the Ingredient object to be created.
+     * @return the unique identifier of the created Ingredient.
      */
     public int createIngredient(Ingredient ingredient) {
         String sql = "INSERT INTO INGREDIENT (NAME) VALUES (?)";
@@ -90,8 +86,7 @@ public class IngredientDAO {
      * Deletes an Ingredient record from the database, including references in
      * related tables.
      *
-	 * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
+     * @param ingredient the Ingredient object to be deleted.
      */
     public void deleteIngredient(Ingredient ingredient) {
         String deleteRecipeIngredientSql = "DELETE FROM RECIPE_INGREDIENT WHERE INGREDIENT_ID = ?";
@@ -129,8 +124,7 @@ public class IngredientDAO {
     /**
      * Updates an existing Ingredient record in the database.
      *
-	 * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
+     * @param ingredient the Ingredient object containing updated information.
      */
     public void updateIngredient(Ingredient ingredient) {
         String sql = "UPDATE INGREDIENT SET NAME = ? WHERE ID = ?";
@@ -146,9 +140,8 @@ public class IngredientDAO {
 
     /**
      * Retrieves all Ingredient records from the database.
-     * 
-	 * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
+     *
+     * @return a list of all Ingredient objects.
      */
     public List<Ingredient> getAllIngredients() {
         String sql = "SELECT * FROM INGREDIENT ORDER BY ID";
@@ -166,8 +159,8 @@ public class IngredientDAO {
     /**
      * Retrieves all Ingredient records from the database with pagination options.
      *
-	 * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
+     * @param pageOptions options for pagination and sorting.
+     * @return a Page of Ingredient objects containing the retrieved ingredients.
      */
     public Page<Ingredient> getAllIngredients(PageOptions pageOptions) {
         String sql = String.format("SELECT * FROM ingredient ORDER BY %s %s", pageOptions.getSortBy(),
@@ -185,8 +178,8 @@ public class IngredientDAO {
     /**
      * Searches for Ingredient records by a search term in the name.
      *
-	 * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
+     * @param term the search term to filter Ingredient names.
+     * @return a list of Ingredient objects that match the search term.
      */
     public List<Ingredient> searchIngredients(String term) {
         String sql = "SELECT * FROM INGREDIENT WHERE NAME LIKE ? ORDER BY ID";
@@ -201,10 +194,12 @@ public class IngredientDAO {
     }
 
     /**
-     * Searches for Ingredient records by a search term in the name with pagination options.
+     * Searches for Ingredient records by a search term in the name with pagination
+     * options.
      *
-	 * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
+     * @param term        the search term to filter Ingredient names.
+     * @param pageOptions options for pagination and sorting.
+     * @return a Page of Ingredient objects containing the retrieved ingredients.
      */
     public Page<Ingredient> searchIngredients(String term, PageOptions pageOptions) {
         String sql = String.format("SELECT * FROM ingredient WHERE name LIKE ? ORDER BY %s %s", pageOptions.getSortBy(),
@@ -224,8 +219,9 @@ public class IngredientDAO {
     /**
      * Maps a single row from the ResultSet to an Ingredient object.
      *
-	 * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
+     * @param resultSet the ResultSet containing Ingredient data.
+     * @return an Ingredient object representing the row.
+     * @throws SQLException if an error occurs while accessing the ResultSet.
      */
     private Ingredient mapSingleRow(ResultSet resultSet) throws SQLException {
         return new Ingredient(resultSet.getInt("ID"), resultSet.getString("NAME"));
@@ -234,8 +230,9 @@ public class IngredientDAO {
     /**
      * Maps multiple rows from the ResultSet to a list of Ingredient objects.
      *
-	 * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
+     * @param resultSet the ResultSet containing Ingredient data.
+     * @return a list of Ingredient objects.
+     * @throws SQLException if an error occurs while accessing the ResultSet.
      */
     private List<Ingredient> mapRows(ResultSet resultSet) throws SQLException {
         List<Ingredient> ingredients = new ArrayList<Ingredient>();
@@ -248,8 +245,10 @@ public class IngredientDAO {
     /**
      * Paginates the results of a ResultSet into a Page of Ingredient objects.
      *
-	 * (FOR REFERENCE) This method is part of the backend logic.
-     * No modifications or implementations are required.
+     * @param resultSet   the ResultSet containing Ingredient data.
+     * @param pageOptions options for pagination and sorting.
+     * @return a Page of Ingredient objects containing the paginated results.
+     * @throws SQLException if an error occurs while accessing the ResultSet.
      */
     private Page<Ingredient> pageResults(ResultSet resultSet, PageOptions pageOptions) throws SQLException {
         List<Ingredient> ingredients = mapRows(resultSet);
